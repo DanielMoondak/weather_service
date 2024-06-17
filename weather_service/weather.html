@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Información del Clima</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-size: cover;
+        }
+        .weather-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        h1 {
+            text-align: center;
+        }
+        p {
+            margin-bottom: 10px;
+        }
+        .weather-item {
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body style="background-image: url('/bg-clima/{{ background_url }}');">
+    <div class="weather-container">
+        <h1>Clima en {{ weather.city }}</h1>
+        <div class="weather-item">
+            <p><strong>Temperatura:</strong> {{ weather.temperature }} °C</p>
+        </div>
+        <div class="weather-item">
+            <p><strong>Sensación Térmica:</strong> {{ weather.feels_like }} °C</p>
+        </div>
+        <div class="weather-item">
+            <p><strong>Descripción:</strong> {{ weather.description }}</p>
+        </div>
+        <div class="weather-item">
+            <p><strong>Velocidad del Viento:</strong> {{ weather.wind_speed }} m/s</p>
+            <p><strong>Dirección del Viento:</strong> {{ weather.wind_deg }}</p>
+        </div>
+        <div class="weather-item">
+            <p><strong>Humedad Relativa:</strong> {{ weather.humidity }} %</p>
+        </div>
+        <div class="weather-item">
+            <p><strong>Presión Atmosférica:</strong> {{ weather.pressure }} hPa</p>
+        </div>
+    </div>
+</body>
+</html>
