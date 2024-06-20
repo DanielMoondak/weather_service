@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa del Clima en Ciudad de México</title>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    #map {
+      height: 400px;
+      width: 100%;
+    }
+    .weather-info {
+      padding: 20px;
+      background-color: #f0f0f0;
+      border-top: 1px solid #ccc;
+    }
+    .weather-info h2 {
+      margin-top: 0;
+    }
+    .weather-info p {
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div class="weather-info">
+    <h2>Clima en Ciudad de México</h2>
+    <p><strong>Temperatura:</strong> <span id="temp"></span> °C</p>
+    <p><strong>Descripción:</strong> <span id="desc"></span></p>
+    <p><strong>Humedad:</strong> <span id="humidity"></span> %</p>
+    <p><strong>Viento:</strong> <span id="wind"></span> km/h</p>
+  </div>
+
+  <script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZGFuaWVsbW9vbmRhayIsImEiOiJjbHhudHp0ZWwwN2dvMmlvczA2OHJmNmY4In0.VDcc3ZvDLw7YF91VSC85eA'; // Token de Mapbox
+    const weatherApiKey = '71ae90ac47ef4ede91a192818242006'; // Token de WeatherAPI
+    const city = 'Mexico City';
+
+    // Inicialización del mapa en Ciudad de México
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v11',
+      center: [-99.1332, 19.4326], // Longitud y Latitud de Ciudad de México
+      zoom: 10
+    });
+
+    // Función para obtener datos del clima desde WeatherAPI
+    async function getWeatherData() {
+      const url = `https://api.weatherapi.com/v1/current.json?key=${weatherApiKey}&q=${city}&aqi=no`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        console.log(data);
+
+        // Actualiza los elementos HTML con los datos del clima
+        document.getElementById('temp').textContent = data.current.temp_c;
+        document.getElementById('desc').textContent = data.current.condition.text;
+        document.getElementById('humidity').textContent = data.current.humidity;
+        document.getElementById('wind').textContent = data.current.wind_kph;
+      } catch (error) {
+        console.error('Error al obtener datos del clima:', error);
+      }
+    }
+
+    // Llama a la función para obtener los datos del clima al cargar la página
+    getWeatherData();
+  </script>
+</body>
+</html>

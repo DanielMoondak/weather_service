@@ -1,0 +1,15 @@
+/* Estilo para el contenedor de la leyenda */
+.map-legend {
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* Estilos para el enlace */
+.map-legend a {
+    color: #007bff; /* Color del enlace */
+    text-decoration: none; /* Quitar subrayado */
+}
+
+.map-legend a:hover {
+    text-decoration: underline; /* Subrayado al pasar el ratón */
+}
