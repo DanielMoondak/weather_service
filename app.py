@@ -7,32 +7,35 @@ app = Flask(__name__, static_folder='bg-clima')
 app.config['DEBUG'] = True  # Habilitar el modo de depuración
 app.logger.setLevel(logging.DEBUG)  # Establecer el nivel de registro a DEBUG
 
+# Claves de API (puedes usar variables de entorno o configurarlas aquí directamente)
+weather_api_key = os.getenv('WEATHER_API_KEY', '71ae90ac47ef4ede91a192818242006')
+openweather_api_key = os.getenv('OPENWEATHER_API_KEY', 'a62194b9c38c403f56fac7676217dcce')
+
 @app.route('/', methods=['GET'])
 def home():
     return "El servidor está funcionando correctamente"
 
 @app.route('/weather', methods=['GET'])
 def get_weather():
-    api_key = os.getenv('OPENWEATHER_API_KEY', 'a62194b9c38c403f56fac7676217dcce')
     city = 'Mexico City'
-    url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric&lang=es'
 
     try:
-        response = requests.get(url)
-        response.raise_for_status()  # Esto lanzará una excepción para códigos de estado 4xx/5xx
-        data = response.json()
+        # Obtener datos del clima desde Weather API
+        weather_url = f'http://api.weatherapi.com/v1/current.json?key={weather_api_key}&q={city}&lang=es'
+        weather_response = requests.get(weather_url)
+        weather_response.raise_for_status()
+        weather_data = weather_response.json()
 
         # Obtener la descripción del clima para elegir la imagen de fondo
-        weather_description = data['weather'][0]['description'].lower()
+        weather_description = weather_data['current']['condition']['text'].lower()
 
         # Mapear la descripción del clima a una imagen de fondo apropiada
         backgrounds = {
-            'cielo claro': 'clear_sky.jpg',
-            'algo de nubes': 'partly_cloudy.jpg',
-            'nubes': 'nubes.jpg',
-            'nubes dispersas': 'scattered_clouds.jpg',
+            'despejado': 'clear_sky.jpg',
+            'parcialmente nublado': 'partly_cloudy.jpg',
+            'Parcialmente Nublado': 'partly_cloudy.jpg',
             'nublado': 'cloudy.jpg',
-            'muy nuboso' : 'very_cloudy.jpg',
+            'cielo cubierto': 'cloudy.jpg',
             'lluvia ligera': 'light_rain.jpg',
             'lluvia': 'rain.jpg',
             'tormenta eléctrica': 'thunderstorm.jpg',
@@ -46,27 +49,50 @@ def get_weather():
         # Obtener la URL de la imagen de fondo según la descripción del clima
         background_url = backgrounds.get(weather_description, 'default_background.jpg')
 
-        # Datos del clima para pasar al template
+        # Datos del clima desde Weather API
         weather = {
-            'city': data['name'],
-            'temperature': data['main']['temp'],
-            'feels_like': data['main']['feels_like'],
-            'description': data['weather'][0]['description'],
-            'wind_speed': data['wind']['speed'],
-            'wind_deg': data['wind'].get('deg', 'N/A'),
-            'humidity': data['main']['humidity'],
-            'pressure': data['main']['pressure']
+            'city': weather_data['location']['name'],
+            'temperature': weather_data['current']['temp_c'],
+            'feels_like': weather_data['current']['feelslike_c'],
+            'description': weather_data['current']['condition']['text'],
+            'wind_speed': weather_data['current']['wind_kph'],
+            'wind_deg': weather_data['current']['wind_dir'],
+            'humidity': weather_data['current']['humidity'],
+            'pressure': weather_data['current']['pressure_mb']
         }
 
-        return render_template('weather.html', weather=weather, background_url=background_url)
+        # Obtener el índice UV
+        uv_index = weather_data['current']['uv']
 
     except requests.exceptions.RequestException as e:
-        return jsonify({'error': 'No se pudo obtener el clima', 'message': str(e)}), 500
+        return jsonify({'error': 'No se pudo obtener el clima desde WeatherAPI', 'message': str(e)}), 500
 
+    # Obtener datos del clima desde OpenWeatherMap API
+    openweather_url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={openweather_api_key}&units=metric&lang=es'
+    try:
+        openweather_response = requests.get(openweather_url)
+        openweather_response.raise_for_status()
+        openweather_data = openweather_response.json()
+
+        # Datos del clima desde OpenWeatherMap API
+        openweather = {
+            'temperature': openweather_data['main']['temp'],
+            'feels_like': openweather_data['main']['feels_like'],
+            'description': openweather_data['weather'][0]['description'],
+            'wind_speed': openweather_data['wind']['speed'],
+            'wind_deg': openweather_data['wind'].get('deg', 'N/A'),
+            'humidity': openweather_data['main']['humidity'],
+            'pressure': openweather_data['main']['pressure']
+        }
+
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': 'No se pudo obtener el clima desde OpenWeatherMap', 'message': str(e)}), 500
+
+    return render_template('weather.html', weather=weather, openweather=openweather, uv_index=uv_index, background_url=background_url)
+   
 @app.route('/bg-clima/<path:filename>')
 def custom_static(filename):
     return send_from_directory('bg-clima', filename)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
-    # app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000)
