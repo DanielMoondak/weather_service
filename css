@@ -1,0 +1,29 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-size: cover;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap; /* Permite que los elementos internos se envuelvan */
+    justify-content: space-between; /* Alinea los elementos a lo largo del contenedor */
+    max-width: 1200px; /* Ajusta según tus necesidades */
+    margin: 0 auto;
+}
+
+.weather-container, .widget1 {
+    flex: 1; /* Ambos elementos ocupan el mismo espacio */
+    max-width: calc(50% - 10px); /* Cada elemento ocupa la mitad del contenedor con un margen entre ellos */
+    margin-bottom: 20px; /* Espacio entre cada elemento */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+@media (max-width: 768px) {
+    .weather-container, .widget1 {
+        max-width: 100%; /* En pantallas más pequeñas, ocupan todo el ancho */
+    }
+}
